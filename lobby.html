@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7" ng-app="lobby"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8" ng-app="lobby"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9" ng-app="lobby"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" ng-app="lobby"> <!--<![endif]-->
+    <head>
+      <meta charset="utf-8">
+      <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+      <title>Saligia</title>
+      <meta name="description" content="">
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+
+      <link rel="stylesheet" href="css/normalize.min.css">
+      <link rel="stylesheet" href="css/lobby.css">
+      <link rel="stylesheet" href="css/bootstrap.min.css">
+      
+      <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
+      <script>window.jQuery || document.write('<script src="js/vendor/jquery-1.10.1.min.js"><\/script>')</script>
+      
+      <script src="js/vendor/modernizr-2.6.2.min.js"></script>
+      <script src="js/vendor/angular.js"></script>
+      <script src="js/vendor/bootstrap.min.js"></script>
+      <script src="js/vendor/ui-bootstrap-tpls-0.10.0.min.js"></script>
+      
+      
+      <script type="text/ng-template" id="lobbyModal.html">
+        <div class="modal-header">
+          <button type="button" class="close" ng-click="close();" aria-hidden="true">&times;</button>
+          <h4 class="modal-title">Spiel: {{getName()}}</h4>
+        </div>
+        <div class="modal-body">
+          <ul class="list-group">
+            <li ng-repeat="peer in getPeers()" class="list-group-item">
+              <div class="input-group" ng-show="peer.id != getMe() && amIHost()">
+                <input type="text" class="form-control" ng-model="peer.name" disabled />
+                <span class="input-group-btn">
+                  <button class="btn btn-default" type="button" ng-click="kickPeer(peer);">Kick</button>
+                </span>
+              </div>
+              
+              <div ng-show="peer.id == getMe()">
+                <input type="text" class="form-control" ng-model="peer.name" />
+              </div>
+              
+              <div ng-show="!amIHost()  && peer.id != getMe()">
+                <input type="text" class="form-control" ng-model="peer.name" disabled/>
+              </div>
+            </li>
+            <li ng-repeat="freeslot in getFreeSlots()" class="list-group-item">
+              <input type="text" class="form-control" value="{{freeslot}}" disabled/>
+            </li>
+          </ul>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" ng-click="close();">Verlassen</button>
+          <button type="button" class="btn btn-primary" ng-click="startGame();" ng-show="amIHost()" ng-disabled="getPeers().length == 0">Spielen</button>
+        </div>
+      </script>
+      <script type="text/ng-template" id="hostModal.html">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+          <h4 class="modal-title">Host</h4>
+        </div>
+        <div class="modal-body">
+          <form class="form-horizontal" role="form" name="hostGameForm">
+            <div class="form-group">
+              <div class="col-sm-2 control-label">
+                <label for="game_name">Name</label>
+              </div>
+              <div class="col-sm-10">
+                <!-- TODO: Validate if name is still available -->
+                <input type="text" id="game_name" class="form-control" ng-model="$parent.name" required />
+              </div>
+            </div>
+            <div class="form-group">
+              <div class="col-sm-2 control-label">
+                <label for="game_pw">Password</label>
+              </div>
+              <div class="col-sm-10">
+                <div class="input-group">
+                  <span class="input-group-addon">
+                    <input type="checkbox" ng-click="$parent.enablePassword=!$parent.enablePassword" ng-init="$parent.enablePassword=false">
+                  </span>
+                  <input type="password" id="game_pw" class="form-control" ng-model="$parent.password" ng-disabled="!$parent.enablePassword" />
+                </div>
+              </div>
+            </div>  
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Schließen</button>
+          <button type="button" class="btn btn-primary" ng-click="hostGame();" data-dismiss="modal" ng-disabled="hostGameForm.$invalid">Host</button>
+        </div>
+      </script>
+      <script type="text/ng-template" id="gameModal.html">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+          <h4 class="modal-title">Spielen</h4>
+        </div>
+        <div class="modal-body">
+          <iframe width="802" height="608" src="{{$parent.url}}">Dein Browser ist fucking alt...</iframe>
+        </div>
+      </script>
+    </head>
+    <body>
+      <!--[if lt IE 7]>
+          <p class="chromeframe">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> or <a href="http://www.google.com/chromeframe/?redirect=true">activate Google Chrome Frame</a> to improve your experience.</p>
+      <![endif]-->
+  
+      <div class="container" ng-controller="AppCtrl">
+        <div class="row">
+          <h1>Saligia - Die Todsünde</h1>
+          <p class="lead">
+            INTRODUCTION Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat.
+          </p>
+        </div>
+        <div class="row">
+          <h2>Offene Spiele</h2>
+          <ul class="list-group">
+            <li ng-repeat="room in rooms" class="list-group-item">
+              <span>{{room.name}} ({{room.peers.length}} / 6)</span>
+              <button type="button" ng-click="joinGame(room);" class="btn btn-default btn-xs pull-right">Beitreten</button>
+            </li>
+            <li ng-show="!rooms.length" class="list-group-item">Keine offenen Spiele</li>
+          </ul>
+          <div class="row" ng-cloak>
+            <div class="col-sm-6">
+              <small ng-show="!!hasConnection">{{rooms.length}} Räume sind offen</small>
+              <small ng-show="!hasConnection">Der Server ist aktuell nicht verfügbar</small>
+            </div>
+            <div class="col-sm-6">
+              <button type="button" class="btn btn-default btn-primary pull-right" ng-click="openHost();">Hosten</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+  		<!--<script src="http://localhost:61553/socket.io/socket.io.js"></script>-->
+  		<script src="http://metzzo.lacerta.uberspace.de:61553/socket.io/socket.io.js"></script>
+  		
+  		<script src="js/util.js"></script>
+      <script src="js/lobby.js"></script>
+      <script src="js/socketio_factory.js"></script>
+	
+      <script>
+          /*var _gaq=[['_setAccount','UA-XXXXX-X'],['_trackPageview']];
+          (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+          g.src='https://www.google-analytics.com/ga.js';
+          s.parentNode.insertBefore(g,s)}(document,'script'));*/
+      </script>
+    </body>
+</html>

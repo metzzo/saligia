@@ -1,0 +1,8 @@
+.modal.gameModal {
+  overflow: hidden !important;
+  overflow-y: hidden !important;
+}
+
+.gameModal .modal-dialog {
+  width: 840px !important;
+}
