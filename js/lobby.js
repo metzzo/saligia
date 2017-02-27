@@ -116,7 +116,7 @@ var RoomCtrl = function($scope, $modalInstance, $window, $timeout, $modal, socke
   
   socket.on('response_startgame', function(data) {
     // file://localhost/Users/rfischer/Documents/Programming/Saligia/game.html
-    var gameUrl = 'http://metzzo.lacerta.uberspace.de/Saligia/game.html?name='+encodeURIComponent($scope.getReallyMe().name)+"&id="+encodeURIComponent(data.gameId)+"&startnew=1"+"&count="+encodeURIComponent(data.room.peers.length);
+    var gameUrl = 'game.html?name='+encodeURIComponent($scope.getReallyMe().name)+"&id="+encodeURIComponent(data.gameId)+"&startnew=1"+"&count="+encodeURIComponent($scope.getPeers().length);
     
     var modalInstance = $modal.open({
       templateUrl: 'gameModal.html',

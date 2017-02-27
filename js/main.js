@@ -1,4 +1,4 @@
-var socket = io.connect('http://metzzo.lacerta.uberspace.de:61553/'); // io.connect('http://localhost:61553'); //  // io.connect('http://localhost:61553'); // 61553
+var socket = io.connect('http://localhost:61553');
 var storage = isStorageSupported() ? sessionStorage : null;
 var game;
 var TOPHUD_HEIGHT = 30;

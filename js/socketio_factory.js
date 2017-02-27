@@ -1,7 +1,8 @@
 app.factory('socket', function ($rootScope) {
   var socket
   try {
-    socket = io.connect('http://metzzo.lacerta.uberspace.de:61553/'); // io.connect('http://localhost:61553');
+    //socket = io.connect('http://metzzo.lacerta.uberspace.de:61553/'); // 
+    socket = io.connect('http://localhost:61553');
   } catch (ex) {
     // mock it baby
     socket = {
